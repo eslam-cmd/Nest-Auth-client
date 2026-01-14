@@ -21,7 +21,7 @@ type RegisterData = {
 
 export default function RegisterForm() {
   const api = axios.create({
-    baseURL: "https://github.com/eslam-cmd/Nest-Auth-server",
+    baseURL: "https://nest-auth-server-five.vercel.app",
     withCredentials: true,
   });
 
