@@ -63,7 +63,8 @@ export default function RegisterForm() {
         await api.post("/auth/register", data);
         setDialog({
           type: "success",
-          message: "Registration successful! You are being redirected to your profile..."
+          message:
+            "Registration successful! You are being redirected to your profile...",
         });
         setTimeout(() => router.push("/profile"), 1000);
       } catch (error) {
@@ -73,7 +74,8 @@ export default function RegisterForm() {
         if (message?.includes("Email already exists")) {
           setDialog({
             type: "error",
-            message: "This email address is already registered. Please log in..",
+            message:
+              "This email address is already registered. Please log in..",
           });
         } else {
           setDialog({
@@ -89,7 +91,10 @@ export default function RegisterForm() {
   );
 
   const onError = (errors: FieldErrors<RegisterData>) => {
-    setDialog({ type: "error", message: "Please fill in all required fields." });
+    setDialog({
+      type: "error",
+      message: "Please fill in all required fields.",
+    });
   };
 
   if (checkingAuth) {
@@ -169,7 +174,11 @@ export default function RegisterForm() {
             fullWidth
             disabled={loading}
           >
-            {loading ? <CircularProgress size={20} color="inherit" /> : "Login"}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Register"
+            )}
           </Button>
         </form>
 

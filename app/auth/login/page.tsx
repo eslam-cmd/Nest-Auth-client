@@ -33,6 +33,7 @@ export default function LoginForm() {
     message: string;
   } | null>(null);
 
+  // Axios instance مع credentials
   const api = axios.create({
     baseURL: "https://nest-auth-server-five.vercel.app",
     withCredentials: true,
@@ -42,10 +43,18 @@ export default function LoginForm() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // جرب تجيب بيانات الملف الشخصي
         await api.get("/auth/me");
         router.push("/profile");
       } catch {
-        console.log("User not authenticated, show login form");
+        // لو access token انتهى، جرب تجديده
+        try {
+          await api.post("/auth/refresh");
+          await api.get("/auth/me");
+          router.push("/profile");
+        } catch {
+          console.log("User not authenticated, show login form");
+        }
       } finally {
         setCheckingAuth(false);
       }
@@ -53,6 +62,7 @@ export default function LoginForm() {
     checkAuth();
   }, [router]);
 
+  // تسجيل الدخول
   const onSubmit = useCallback(
     async (data: LoginData) => {
       setIsLoading(true);
@@ -69,15 +79,21 @@ export default function LoginForm() {
         const err = error as AxiosError<{ message?: string }>;
         const message = err.response?.data?.message;
 
-        if (message?.includes("Login data is incorrect")) {
+        if (message?.includes("بيانات الدخول غير صحيحة")) {
           setDialog({
             type: "error",
             message: "Incorrect email or password",
           });
-        } else if (message?.includes("User not found")) {
-          setDialog({ type: "error", message: "No account exists with this email address." });
+        } else if (message?.includes("المستخدم غير موجود")) {
+          setDialog({
+            type: "error",
+            message: "No account exists with this email address.",
+          });
         } else {
-          setDialog({ type: "error", message: "An error occurred, please try again." });
+          setDialog({
+            type: "error",
+            message: "An error occurred, please try again.",
+          });
         }
       } finally {
         setIsLoading(false);
@@ -86,8 +102,12 @@ export default function LoginForm() {
     [router]
   );
 
+  // التحقق من الأخطاء في الفورم
   const onError = (errors: FieldErrors<LoginData>) => {
-    setDialog({ type: "error", message: "Please fill out the required fields." });
+    setDialog({
+      type: "error",
+      message: "Please fill out the required fields.",
+    });
   };
 
   if (checkingAuth) {
@@ -114,8 +134,6 @@ export default function LoginForm() {
         elevation={3}
         sx={{ p: 4, borderRadius: 3, width: 350, textAlign: "center" }}
       >
-
-
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
             <TextField
